@@ -4,13 +4,11 @@ package Laevis;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
-import imgui.flag.ImGuiBackendFlags;
-import imgui.flag.ImGuiConfigFlags;
-import imgui.flag.ImGuiKey;
-import imgui.flag.ImGuiMouseCursor;
+import imgui.flag.*;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import Scenes.Scene;
+import imgui.type.ImBoolean;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -50,6 +48,7 @@ public class   ImGuiLayer {
         final ImGuiIO io = ImGui.getIO();
         io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
         io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors);
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         io.setBackendPlatformName("imgui_java_impl_glfw");//i have no idea what this does
         io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
 
@@ -180,8 +179,10 @@ public class   ImGuiLayer {
 
         // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
         ImGui.newFrame();
+        setupDockspace();
         currentScene.sceneImgui();
         ImGui.showDemoWindow();
+        ImGui.end();
         ImGui.render();
 
         endFrame();
@@ -264,6 +265,27 @@ public class   ImGuiLayer {
             ImGui.text("This is a cool message!");
             ImGui.sameLine();
         }
+
+
+    }
+
+
+    private void setupDockspace(){
+        int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+
+        ImGui.setNextWindowPos(0.0f,0.0f,ImGuiCond.Always);
+        ImGui.setNextWindowSize(Window.getWidth(), Window.getHeight());
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding,0.0f);
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize,0.0f);
+        windowFlags|=ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse
+                | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove|
+                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+
+          ImGui.begin("Dockspace Demo", new ImBoolean(true), windowFlags);
+          ImGui.popStyleVar(2);
+
+          //DAH BEYE3MEL DOCKSPACE
+          ImGui.dockSpace(ImGui.getID("Dockspace"));
 
 
     }
