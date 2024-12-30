@@ -1,5 +1,6 @@
 package Scenes;
 
+import Renderer.DebugDraw;
 import components.*;
 import imgui.ImGui;
 import imgui.ImVec2;
@@ -8,6 +9,7 @@ import Laevis.GameObject;
 import Laevis.Prefabs;
 import Laevis.Transform;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import LaevisUtilities.AssetPool;
 
@@ -51,6 +53,8 @@ public class LevelEditorScene extends Scene {
         obj2SpriteRenderer.setSprite(obj2Sprite);
         obj2.addComponent(obj2SpriteRenderer);
         this.addGameObjectToScene(obj2);
+
+
     }
 
     private void loadResources() {
@@ -63,10 +67,16 @@ public class LevelEditorScene extends Scene {
         AssetPool.getTexture("assets/images/blendImage2.png");
     }
 
+    float t=0.0f;
+
     @Override
     public void update(float dt) {
         mouseControls.update(dt);
 
+        //float x = ((float)Math.sin(t)*200.0f) + 600;
+       // float y = ((float)Math.cos(t)*200.0f) + 400;
+        //t+=0.05f;
+       // DebugDraw.addLine2D(new Vector2f(600, 400), new Vector2f(x, y),new Vector3f(0,0,1));
         for (GameObject go : this.gameObjects) {
             go.update(dt);
         }
