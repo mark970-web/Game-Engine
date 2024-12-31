@@ -1,6 +1,5 @@
 package Scenes;
 
-import Renderer.DebugDraw;
 import components.*;
 import imgui.ImGui;
 import imgui.ImVec2;
@@ -9,20 +8,20 @@ import Laevis.GameObject;
 import Laevis.Prefabs;
 import Laevis.Transform;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import physics2d.PhysicsSystem2D;
+import physics2d.rigidbody.Rigidbody2D;
+import Scenes.Scene;
+//import sun.security.ssl.Debug;
 import LaevisUtilities.AssetPool;
 
 public class LevelEditorScene extends Scene {
 
-    private GameObject obj1;
     private Spritesheet sprites;
-    SpriteRenderer obj1Sprite;
 
-    GameObject levelEditorStuff = new GameObject("LevelEditor", new Transform(new Vector2f()),0);
-
-
-    MouseControls mouseControls = new MouseControls();
+    GameObject levelEditorStuff = new GameObject("LevelEditor", new Transform(new Vector2f()), 0);
+    PhysicsSystem2D physics = new PhysicsSystem2D(1.0f / 60.0f, new Vector2f(0, -10));
+    Transform obj1, obj2;
+    Rigidbody2D rb1, rb2;
 
     public LevelEditorScene() {
 
@@ -30,35 +29,35 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
+        this.camera = new Camera(new Vector2f(-250, 0));
         levelEditorStuff.addComponent(new MouseControls());
         levelEditorStuff.addComponent(new GridLines());
+        levelEditorStuff.addComponent(new EditorCamera(this.camera));
 
+//        obj1 = new Transform(new Vector2f(100, 500));
+//        obj2 = new Transform(new Vector2f(100, 300));
+//
+//        rb1 = new Rigidbody2D();
+//        rb2 = new Rigidbody2D();
+//        rb1.setRawTransform(obj1);
+//        rb2.setRawTransform(obj2);
+//        rb1.setMass(100.0f);
+//        rb2.setMass(200.0f);
+//
+//        Circle c1 = new Circle();
+//        c1.setRadius(10.0f);
+//        c1.setRigidbody(rb1);
+//        Circle c2 = new Circle();
+//        c2.setRadius(20.0f);
+//        c2.setRigidbody(rb2);
+//        rb1.setCollider(c1);
+//        rb2.setCollider(c2);
+//
+//        physics.addRigidbody(rb1, true);
+//        physics.addRigidbody(rb2, false);
 
         loadResources();
-        this.camera = new Camera(new Vector2f(-250, 0));
         sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
-
-
-
-     /*  obj1 = new GameObject("Object 1", new Transform(new Vector2f(200, 100),
-                new Vector2f(256, 256)), 2);
-        obj1Sprite = new SpriteRenderer();
-        obj1Sprite.setColor(new Vector4f(1, 0, 0, 1));
-        obj1.addComponent(obj1Sprite);
-        obj1.addComponent(new Rigidbody());
-        this.addGameObjectToScene(obj1);
-        this.activeGameObject = obj1;
-
-        GameObject obj2 = new GameObject("Object 2",
-                new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 3);
-        SpriteRenderer obj2SpriteRenderer = new SpriteRenderer();
-        Sprite obj2Sprite = new Sprite();
-        obj2Sprite.setTexture(AssetPool.getTexture("assets/images/blendImage2.png"));
-        obj2SpriteRenderer.setSprite(obj2Sprite);
-        obj2.addComponent(obj2SpriteRenderer);
-        this.addGameObjectToScene(obj2);
-*/
-
     }
 
     private void loadResources() {
@@ -69,34 +68,34 @@ public class LevelEditorScene extends Scene {
                         16, 16, 81, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
 
-
         for (GameObject g : gameObjects) {
-            if(g.getComponent(SpriteRenderer.class) != null){
+            if (g.getComponent(SpriteRenderer.class) != null) {
                 SpriteRenderer spr = g.getComponent(SpriteRenderer.class);
-                if(spr.getTexture()!=null){
+                if (spr.getTexture() != null) {
                     spr.setTexture(AssetPool.getTexture(spr.getTexture().getFilepath()));
                 }
             }
         }
     }
 
-
-
     @Override
     public void update(float dt) {
         levelEditorStuff.update(dt);
+        this.camera.adjustProjection();
 
         for (GameObject go : this.gameObjects) {
             go.update(dt);
         }
 
+//        DebugDraw.addCircle(obj1.position, 10.0f, new Vector3f(1, 0, 0));
+//        DebugDraw.addCircle(obj2.position, 20.0f, new Vector3f(0.2f, 0.8f, 0.1f));
+//        physics.update(dt);
     }
 
     @Override
     public void render() {
-    this.renderer.render();
+        this.renderer.render();
     }
-
 
     @Override
     public void imgui() {
