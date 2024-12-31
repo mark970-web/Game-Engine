@@ -91,6 +91,8 @@ public abstract class Component {
         return this.uid;
     }
 
+
+
     public static void init(int maxId) {
         ID_COUNTER = maxId;
     }
