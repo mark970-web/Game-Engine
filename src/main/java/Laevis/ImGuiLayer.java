@@ -1,7 +1,9 @@
 package Laevis;
 
 
+import Renderer.PickingTexture;
 import editor.GameViewWindow;
+import editor.PropertiesWindow;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
@@ -29,11 +31,16 @@ public class   ImGuiLayer {
     public boolean show2dWin=false;
     public boolean show3dWin=false;
 
+
+    private GameViewWindow gameViewWindow;
+
+    private PropertiesWindow propertiesWindow;
+
     // Constructor initializes the ImGui backend
-    public ImGuiLayer(long glfwWindow   ) {
+    public ImGuiLayer(long glfwWindow , PickingTexture pickingTexture) {
         this.glfwWindow=glfwWindow;
-
-
+        this.gameViewWindow=new GameViewWindow();
+        this.propertiesWindow=new PropertiesWindow(pickingTexture);
     }
 
     // Initialization method for ImGui
@@ -134,7 +141,7 @@ public class   ImGuiLayer {
             if (!io.getWantCaptureMouse() && mouseDown[1]) {
                 ImGui.setWindowFocus(null);
             }
-            if(!io.getWantCaptureMouse() || GameViewWindow.getWantCaptureMouse()){
+            if(!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()){
                 MouseListener.mouseButtonCallback(w,button,action,mods);
             }
 
@@ -181,9 +188,11 @@ public class   ImGuiLayer {
         // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
         ImGui.newFrame();
         setupDockspace();
-        currentScene.sceneImgui();
+        currentScene.imgui();
         ImGui.showDemoWindow();
-        GameViewWindow.imgui();
+        gameViewWindow.imgui();
+        propertiesWindow.imgui();
+        propertiesWindow.update(dt,currentScene);
         ImGui.end();
         ImGui.render();
 
