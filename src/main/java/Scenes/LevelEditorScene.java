@@ -3,13 +3,14 @@ package Scenes;
 import components.*;
 import imgui.ImGui;
 import imgui.ImVec2;
-import Laevis.Camera;
-import Laevis.GameObject;
-import Laevis.Prefabs;
-import Laevis.Transform;
+import Laevis.*;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import physics2d.PhysicsSystem2D;
+import physics2d.primitives.Circle;
 import physics2d.rigidbody.Rigidbody2D;
+import Renderer.DebugDraw;
 import Scenes.Scene;
 //import sun.security.ssl.Debug;
 import LaevisUtilities.AssetPool;
@@ -29,10 +30,18 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
+        loadResources();
+        sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
+        Spritesheet gizmos = AssetPool.getSpritesheet("assets/images/gizmos.png");
+
         this.camera = new Camera(new Vector2f(-250, 0));
         levelEditorStuff.addComponent(new MouseControls());
         levelEditorStuff.addComponent(new GridLines());
         levelEditorStuff.addComponent(new EditorCamera(this.camera));
+        levelEditorStuff.addComponent(new TranslateGizmo(gizmos.getSprite(1),
+                Window.getImGuiLayer().getPropertiesWindow()));
+
+        levelEditorStuff.start();
 
 //        obj1 = new Transform(new Vector2f(100, 500));
 //        obj2 = new Transform(new Vector2f(100, 300));
@@ -55,9 +64,6 @@ public class LevelEditorScene extends Scene {
 //
 //        physics.addRigidbody(rb1, true);
 //        physics.addRigidbody(rb2, false);
-
-        loadResources();
-        sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
     }
 
     private void loadResources() {
@@ -66,6 +72,9 @@ public class LevelEditorScene extends Scene {
         AssetPool.addSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png",
                 new Spritesheet(AssetPool.getTexture("assets/images/spritesheets/decorationsAndBlocks.png"),
                         16, 16, 81, 0));
+        AssetPool.addSpritesheet("assets/images/gizmos.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/gizmos.png"),
+                        24, 48, 2, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
 
         for (GameObject g : gameObjects) {
@@ -99,6 +108,10 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void imgui() {
+        ImGui.begin("Level Editor Stuff");
+        levelEditorStuff.imgui();
+        ImGui.end();
+
         ImGui.begin("Test window");
 
         ImVec2 windowPos = new ImVec2();
