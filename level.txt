@@ -1,6 +1,6 @@
 [
   {
-    "uid": 90,
+    "uid": 0,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -63,7 +63,7 @@
     "isDead": false
   },
   {
-    "uid": 91,
+    "uid": 1,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -126,7 +126,7 @@
     "isDead": false
   },
   {
-    "uid": 92,
+    "uid": 2,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -189,7 +189,7 @@
     "isDead": false
   },
   {
-    "uid": 93,
+    "uid": 3,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -252,7 +252,7 @@
     "isDead": false
   },
   {
-    "uid": 94,
+    "uid": 4,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -330,8 +330,8 @@
         "type": "physics2d.components.Box2DCollider",
         "properties": {
           "halfSize": {
-            "x": 1.0,
-            "y": 1.0
+            "x": 0.3,
+            "y": 0.3
           },
           "origin": {
             "x": 0.0,
@@ -349,7 +349,7 @@
     "isDead": false
   },
   {
-    "uid": 95,
+    "uid": 5,
     "name": "Sprite_Object_Gen",
     "components": [
       {
