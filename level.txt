@@ -1,6 +1,6 @@
 [
   {
-    "uid": 0,
+    "uid": 90,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -63,7 +63,7 @@
     "isDead": false
   },
   {
-    "uid": 1,
+    "uid": 91,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -126,7 +126,7 @@
     "isDead": false
   },
   {
-    "uid": 2,
+    "uid": 92,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -189,7 +189,7 @@
     "isDead": false
   },
   {
-    "uid": 3,
+    "uid": 93,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -252,7 +252,7 @@
     "isDead": false
   },
   {
-    "uid": 4,
+    "uid": 94,
     "name": "Sprite_Object_Gen",
     "components": [
       {
@@ -349,19 +349,19 @@
     "isDead": false
   },
   {
-    "uid": 5,
+    "uid": 95,
     "name": "Sprite_Object_Gen",
     "components": [
       {
         "type": "Laevis.Transform",
         "properties": {
           "position": {
-            "x": -248.0,
-            "y": 1.92
+            "x": -248.7078,
+            "y": 0.7134273
           },
           "scale": {
-            "x": 0.25,
-            "y": 0.25
+            "x": 0.7174072,
+            "y": 0.6232393
           },
           "rotation": 0.0,
           "zIndex": 0,
@@ -405,6 +405,40 @@
             ]
           },
           "uid": 133
+        }
+      },
+      {
+        "type": "physics2d.components.Rigidbody2D",
+        "properties": {
+          "velocity": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "angularDamping": 0.8,
+          "linearDamping": 0.9,
+          "mass": 0.0,
+          "bodyType": "Static",
+          "fixedRotation": false,
+          "continuousCollision": false,
+          "uid": 185
+        }
+      },
+      {
+        "type": "physics2d.components.Box2DCollider",
+        "properties": {
+          "halfSize": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "origin": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "offset": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "uid": 186
         }
       }
     ],
