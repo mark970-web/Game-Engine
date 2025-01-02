@@ -1,7 +1,7 @@
-package physics2d.forces;
+package physics2dtemp.forces;
 
 import org.joml.Vector2f;
-import physics2d.rigidbody.Rigidbody2D;
+import physics2dtemp.rigidbody.Rigidbody2D;
 
 public class Gravity2D implements ForceGenerator {
 

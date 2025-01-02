@@ -1,9 +1,9 @@
-package physics2d.rigidbody;
+package physics2dtemp.rigidbody;
 
 import components.Component;
 import Laevis.Transform;
 import org.joml.Vector2f;
-import physics2d.primitives.Collider2D;
+import physics2dtemp.primitives.Collider2D;
 
 public class Rigidbody2D extends Component {
     private Transform rawTransform;

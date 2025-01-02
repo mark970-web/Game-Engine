@@ -1,7 +1,7 @@
-package physics2d.rigidbody;
+package physics2dtemp.rigidbody;
 
 import org.joml.Vector2f;
-import physics2d.primitives.*;
+import physics2dtemp.primitives.*;
 import Renderer.Line2D;
 import LaevisUtilities.JMath;
 

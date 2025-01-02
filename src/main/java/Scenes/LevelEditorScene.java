@@ -5,13 +5,8 @@ import imgui.ImGui;
 import imgui.ImVec2;
 import Laevis.*;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-import physics2d.PhysicsSystem2D;
-import physics2d.primitives.Circle;
-import physics2d.rigidbody.Rigidbody2D;
-import Renderer.DebugDraw;
-import Scenes.Scene;
+import physics2dtemp.PhysicsSystem2D;
+import physics2dtemp.rigidbody.Rigidbody2D;
 //import sun.security.ssl.Debug;
 import LaevisUtilities.AssetPool;
 
