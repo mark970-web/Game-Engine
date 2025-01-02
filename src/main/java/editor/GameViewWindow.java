@@ -6,13 +6,28 @@ import imgui.ImVec2;
 import imgui.flag.ImGuiWindowFlags;
 import Laevis.Window;
 import org.joml.Vector2f;
+import observers.ObserverHandler;
+import observers.events.Event;
+import observers.events.EventType;
 
 public class GameViewWindow {
 
     private float leftX, rightX, topY, bottomY;
+    private boolean isPlaying;
 
     public void imgui() {
-        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.MenuBar);
+
+        ImGui.beginMenuBar();
+        if (ImGui.menuItem("Play", "", isPlaying, !isPlaying)) {
+            isPlaying = true;
+            ObserverHandler.notify(null, new Event(EventType.GameEngineStartPlay));
+        }
+        if (ImGui.menuItem("Stop", "", !isPlaying, isPlaying)) {
+            isPlaying = false;
+            ObserverHandler.notify(null, new Event(EventType.GameEngineStopPlay));
+        }
+        ImGui.endMenuBar();
 
         ImVec2 windowSize = getLargestSizeForViewport();
         ImVec2 windowPos = getCenteredPositionForViewport(windowSize);
@@ -41,7 +56,6 @@ public class GameViewWindow {
         return MouseListener.getX() >= leftX && MouseListener.getX() <= rightX &&
                 MouseListener.getY() >= bottomY && MouseListener.getY() <= topY;
     }
-
 
     private ImVec2 getLargestSizeForViewport() {
         ImVec2 windowSize = new ImVec2();

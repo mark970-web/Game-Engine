@@ -3,8 +3,7 @@ package components;
 import Laevis.KeyListener;
 import Laevis.Window;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class GizmoSystem extends Component {
     private Spritesheet gizmos;
@@ -17,9 +16,9 @@ public class GizmoSystem extends Component {
     @Override
     public void start() {
         gameObject.addComponent(new TranslateGizmo(gizmos.getSprite(1),
-                Window.getImGuiLayer().getPropertiesWindow()));
+                Window.getImguiLayer().getPropertiesWindow()));
         gameObject.addComponent(new ScaleGizmo(gizmos.getSprite(2),
-                Window.getImGuiLayer().getPropertiesWindow()));
+                Window.getImguiLayer().getPropertiesWindow()));
     }
 
     @Override

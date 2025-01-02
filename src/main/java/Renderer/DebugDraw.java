@@ -45,7 +45,7 @@ public class DebugDraw {
         glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
         glEnableVertexAttribArray(1);
 
-        glLineWidth(5f);
+        glLineWidth(2.0f);
     }
 
     public static void beginFrame() {
@@ -100,7 +100,7 @@ public class DebugDraw {
         glEnableVertexAttribArray(1);
 
         // Draw the batch
-        glDrawArrays(GL_LINES, 0, lines.size() * 6 * 2);
+        glDrawArrays(GL_LINES, 0, lines.size() * 2);
 
         // Disable Location
         glDisableVertexAttribArray(0);
@@ -127,6 +127,7 @@ public class DebugDraw {
         if (lines.size() >= MAX_LINES) return;
         DebugDraw.lines.add(new Line2D(from, to, color, lifetime));
     }
+
     // ==================================================
     // Add Box2D methods
     // ==================================================

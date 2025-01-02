@@ -1,62 +1,48 @@
 package Laevis;
 
-import LaevisUtilities.AssetPool;
-import Renderer.DebugDraw;
-import Renderer.Framebuffer;
-import Renderer.PickingTexture;
-import Renderer.Renderer;
-import Renderer.Shader;
+import Scenes.LevelEditorInitializer;
+import observers.Observer;
+import observers.ObserverHandler;
+import observers.events.Event;
+import observers.events.EventType;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import Scenes.LevelEditorScene;
-import Scenes.LevelScene;
+import Renderer.*;
 import Scenes.Scene;
+import Scenes.SceneInitializer;
+import LaevisUtilities.AssetPool;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window {
+public class Window implements Observer {
     private int width, height;
     private String title;
     private long glfwWindow;
     private ImGuiLayer imguiLayer;
-
     private Framebuffer framebuffer;
     private PickingTexture pickingTexture;
-
-    public float r, g, b, a;
-    private boolean fadeToBlack = false;
+    private boolean debugDrawPhysics = false;
 
     private static Window window = null;
-
     private static Scene currentScene;
 
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "Mario";
-        r = 1;
-        b = 1;
-        g = 1;
-        a = 1;
+        ObserverHandler.addObserver(this);
     }
 
-    public static void changeScene(int newScene) {
-        switch (newScene) {
-            case 0:
-                currentScene = new LevelEditorScene();
-                break;
-            case 1:
-                currentScene = new LevelScene();
-                break;
-            default:
-                assert false : "Unknown scene '" + newScene + "'";
-                break;
+    public static void changeScene(SceneInitializer sceneInitializer, boolean playPhysics) {
+        if (currentScene != null) {
+            currentScene.destroy();
         }
-
+        getImguiLayer().getPropertiesWindow().setActiveGameObject(null);
+        currentScene = new Scene(sceneInitializer, playPhysics);
         currentScene.load();
         currentScene.init();
         currentScene.start();
@@ -144,8 +130,7 @@ public class Window {
         this.imguiLayer = new ImGuiLayer(glfwWindow, pickingTexture);
         this.imguiLayer.initImGui();
 
-
-        Window.changeScene(0);
+        Window.changeScene(new LevelEditorInitializer(), false);
     }
 
     public void loop() {
@@ -155,29 +140,30 @@ public class Window {
 
         Shader defaultShader = AssetPool.getShader("assets/shaders/default.glsl");
         Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
+
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
 
+            // Render pass 1. Render to picking texture
             glDisable(GL_BLEND);
             pickingTexture.enableWriting();
 
-            glViewport(0,0,1920,1080);
+            glViewport(0, 0, 1920, 1080);
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             Renderer.bindShader(pickingShader);
             currentScene.render();
 
-
             pickingTexture.disableWriting();
             glEnable(GL_BLEND);
 
+            // Render pass 2. Render actual game
             DebugDraw.beginFrame();
 
             this.framebuffer.bind();
-
-            glClearColor(r, g, b, a);
+            glClearColor(1, 1, 1, 1);
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
@@ -185,9 +171,12 @@ public class Window {
                 Renderer.bindShader(defaultShader);
                 currentScene.update(dt);
                 currentScene.render();
-            }
-             this.framebuffer.unbind();
 
+                if (debugDrawPhysics) {
+                    currentScene.debugDrawPhysics();
+                }
+            }
+            this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
             glfwSwapBuffers(glfwWindow);
@@ -197,8 +186,22 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+    }
 
-        currentScene.saveExit();
+    @Override
+    public void onNotify(GameObject obj, Event event) {
+        if (event.type == EventType.GameEngineStartPlay) {
+            currentScene.save();
+            Window.changeScene(new LevelEditorInitializer(), true);
+        } else if (event.type == EventType.GameEngineStopPlay) {
+            Window.changeScene(new LevelEditorInitializer(), false);
+        } else if (event.type == EventType.TogglePhysicsDebugDraw) {
+            this.debugDrawPhysics = !this.debugDrawPhysics;
+        } else if (event.type == EventType.SaveLevel) {
+            currentScene.save();
+        } else if (event.type == EventType.LoadLevel) {
+            Window.changeScene(new LevelEditorInitializer(), true);
+        }
     }
 
     public static int getWidth() {
@@ -217,16 +220,15 @@ public class Window {
         get().height = newHeight;
     }
 
-    public static Framebuffer getFramebuffer()
-    {
+    public static Framebuffer getFramebuffer() {
         return get().framebuffer;
     }
 
     public static float getTargetAspectRatio() {
-        return 16.0f/9.0f;
+        return 16.0f / 9.0f;
     }
 
-    public static ImGuiLayer getImGuiLayer() {
+    public static ImGuiLayer getImguiLayer() {
         return get().imguiLayer;
     }
 }

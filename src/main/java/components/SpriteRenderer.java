@@ -29,7 +29,7 @@ public class SpriteRenderer extends Component {
 
     @Override
     public void start() {
-        System.out.println("SpriteRenderer start");
+        this.isDirty = true;
         this.lastTransform = gameObject.transform.copy();
     }
 
@@ -74,6 +74,10 @@ public class SpriteRenderer extends Component {
 
     public boolean isDirty() {
         return this.isDirty;
+    }
+
+    public void setDirty() {
+        this.isDirty = true;
     }
 
     public void setClean() {

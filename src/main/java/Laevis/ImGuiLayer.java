@@ -3,6 +3,7 @@ package Laevis;
 
 import Renderer.PickingTexture;
 import editor.GameViewWindow;
+import editor.MenuBar;
 import editor.PropertiesWindow;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
@@ -16,53 +17,42 @@ import imgui.type.ImBoolean;
 import static org.lwjgl.glfw.GLFW.*;
 
 
-public class   ImGuiLayer {
-    public ImGuiImplGlfw imguiglfw;
-    public ImGuiImplGl3 implGl3;
+public class ImGuiLayer {
+
     private long glfwWindow;
 
-    //mouse cursors provided by glfw
-    private final long[] mousecursors=new long[ImGuiMouseCursor.COUNT];
+    // Mouse cursors provided by GLFW
+    private final long[] mouseCursors = new long[ImGuiMouseCursor.COUNT];
 
-
-    //flags for showing windows ,can be edited for any additions
-    public boolean showText = false;
-    public boolean showmainmenu=true ;
-    public boolean show2dWin=false;
-    public boolean show3dWin=false;
-
+    // LWJGL3 renderer (SHOULD be initialized)
+    private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
     private GameViewWindow gameViewWindow;
-
     private PropertiesWindow propertiesWindow;
+    private MenuBar menuBar;
 
-    // Constructor initializes the ImGui backend
-    public ImGuiLayer(long glfwWindow , PickingTexture pickingTexture) {
-        this.glfwWindow=glfwWindow;
-        this.gameViewWindow=new GameViewWindow();
-        this.propertiesWindow=new PropertiesWindow(pickingTexture);
+    public ImGuiLayer(long glfwWindow, PickingTexture pickingTexture) {
+        this.glfwWindow = glfwWindow;
+        this.gameViewWindow = new GameViewWindow();
+        this.propertiesWindow = new PropertiesWindow(pickingTexture);
+        this.menuBar = new MenuBar();
     }
 
-    // Initialization method for ImGui
+    // Initialize Dear ImGui.
     public void initImGui() {
-        imguiglfw = new ImGuiImplGlfw();
-        implGl3 = new ImGuiImplGl3();
-
-        // Create ImGui context
-        //essential for imgui to work
+        // IMPORTANT!!
+        // This line is critical for Dear ImGui to work.
         ImGui.createContext();
 
-        //init ImguiIo config
+        // ------------------------------------------------------------
+        // Initialize ImGuiIO config
         final ImGuiIO io = ImGui.getIO();
-        io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
-        io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors);
-        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
-        io.setBackendPlatformName("imgui_java_impl_glfw");//i have no idea what this does
-        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
 
-        io.setDisplaySize(1920, 1080);
-        io.getFonts().addFontDefault();
-        io.getFonts().build();
+        io.setIniFilename("imgui.ini"); // We don't want to save .ini file
+        io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard); // Navigation with keyboard
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+        io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors); // Mouse cursors to display while resizing windows etc.
+        io.setBackendPlatformName("imgui_java_impl_glfw");
 
         // ------------------------------------------------------------
         // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
@@ -90,19 +80,21 @@ public class   ImGuiLayer {
         keyMap[ImGuiKey.Y] = GLFW_KEY_Y;
         keyMap[ImGuiKey.Z] = GLFW_KEY_Z;
         io.setKeyMap(keyMap);
-        // ------------------------------------------------------------
-        // Mouse cursors mapping
-        mousecursors[ImGuiMouseCursor.Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mousecursors[ImGuiMouseCursor.TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-        mousecursors[ImGuiMouseCursor.ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mousecursors[ImGuiMouseCursor.ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
-        mousecursors[ImGuiMouseCursor.ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-        mousecursors[ImGuiMouseCursor.ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mousecursors[ImGuiMouseCursor.ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-        mousecursors[ImGuiMouseCursor.Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-        mousecursors[ImGuiMouseCursor.NotAllowed] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 
         // ------------------------------------------------------------
+        // Mouse cursors mapping
+        mouseCursors[ImGuiMouseCursor.Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+        mouseCursors[ImGuiMouseCursor.TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+        mouseCursors[ImGuiMouseCursor.ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+        mouseCursors[ImGuiMouseCursor.ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+        mouseCursors[ImGuiMouseCursor.ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+        mouseCursors[ImGuiMouseCursor.ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+        mouseCursors[ImGuiMouseCursor.ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+        mouseCursors[ImGuiMouseCursor.Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+        mouseCursors[ImGuiMouseCursor.NotAllowed] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+
+        // ------------------------------------------------------------
+        // GLFW callbacks to handle user input
 
         glfwSetKeyCallback(glfwWindow, (w, key, scancode, action, mods) -> {
             if (action == GLFW_PRESS) {
@@ -141,21 +133,17 @@ public class   ImGuiLayer {
             if (!io.getWantCaptureMouse() && mouseDown[1]) {
                 ImGui.setWindowFocus(null);
             }
-            if(!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()){
-                MouseListener.mouseButtonCallback(w,button,action,mods);
+
+            if (!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()) {
+                MouseListener.mouseButtonCallback(w, button, action, mods);
             }
-
-
         });
 
         glfwSetScrollCallback(glfwWindow, (w, xOffset, yOffset) -> {
             io.setMouseWheelH(io.getMouseWheelH() + (float) xOffset);
             io.setMouseWheel(io.getMouseWheel() + (float) yOffset);
-            MouseListener.mouseScrollCallback(w,xOffset,yOffset);
+            MouseListener.mouseScrollCallback(w, xOffset, yOffset);
         });
-
-
-
 
         io.setSetClipboardTextFn(new ImStrConsumer() {
             @Override
@@ -175,13 +163,32 @@ public class   ImGuiLayer {
                 }
             }
         });
+
+        // ------------------------------------------------------------
+        // Fonts configuration
+        // Read: https://raw.githubusercontent.com/ocornut/imgui/master/docs/FONTS.txt
+
+       // final ImFontAtlas fontAtlas = io.getFonts();
+        //final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
+
+        // Glyphs could be added per-font as well as per config used globally like here
+        //fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
+
+        // Fonts merge example
+       // fontConfig.setPixelSnapH(true);
+        //fontAtlas.addFontFromFileTTF("assets/fonts/segoeui.ttf", 32, fontConfig);
+
+        //fontConfig.destroy(); // After all fonts were added we don't need this config more
+
+        // ------------------------------------------------------------
+        // Use freetype instead of stb_truetype to build a fonts texture
+       // ImGuiFreeType.buildFontAtlas(fontAtlas, ImGuiFreeType.RasterizerFlags.LightHinting);
+
         // Method initializes LWJGL3 renderer.
         // This method SHOULD be called after you've initialized your ImGui configuration (fonts and so on).
         // ImGui context should be created as well.
-        implGl3.init("#version 330 core");
+        imGuiGl3.init("#version 330 core");
     }
-
-
 
     public void update(float dt, Scene currentScene) {
         startFrame(dt);
@@ -192,8 +199,9 @@ public class   ImGuiLayer {
         currentScene.imgui();
         ImGui.showDemoWindow();
         gameViewWindow.imgui();
+        propertiesWindow.update(dt, currentScene);
         propertiesWindow.imgui();
-        propertiesWindow.update(dt,currentScene);
+        menuBar.imgui();
         ImGui.end();
         ImGui.render();
 
@@ -217,95 +225,41 @@ public class   ImGuiLayer {
 
         // Update the mouse cursor
         final int imguiCursor = ImGui.getMouseCursor();
-        glfwSetCursor(glfwWindow, mousecursors[imguiCursor]);
+        glfwSetCursor(glfwWindow, mouseCursors[imguiCursor]);
         glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
     private void endFrame() {
         // After Dear ImGui prepared a draw data, we use it in the LWJGL3 renderer.
         // At that moment ImGui will be rendered to the current OpenGL context.
-        implGl3.renderDrawData(ImGui.getDrawData());
+        imGuiGl3.renderDrawData(ImGui.getDrawData());
     }
 
     // If you want to clean a room after yourself - do it by yourself
     private void destroyImGui() {
-        implGl3.dispose();
+        imGuiGl3.dispose();
         ImGui.destroyContext();
     }
 
-
-    // Call this method to render ImGui elements
-    public void ImGui() {
-
-
-        if(showmainmenu) {
-            // Set window size (width, height) and position (x, y)
-            ImGui.setWindowSize(400, 300);  // Set the window size to 400x300
-            ImGui.setWindowPos(100, 100);   // Set the window position to (100, 100)
-
-            ImGui.begin("Main menu");
-
-            ImGui.showDemoWindow();
-
-            if (ImGui.button("2d", 500, 50)) {
-
-                show2dWin = true;
-
-            }
-            if (ImGui.button("3d", 550, 50)) {
-                show3dWin = true;
-            }
-            ImGui.end();
-        }
-        if(show2dWin){
-            ImGui.begin("2d editor");
-            ImGui.text("this is the 2d editor");
-            showmainmenu=false;
-            if(ImGui.button("return to main menu")){
-                showmainmenu=true;
-            }
-            ImGui.end();
-        }
-
-        if(show3dWin){
-            ImGui.begin("3d editor");
-            ImGui.text("this is the 3d editor");
-
-            ImGui.end();
-        }
-        if (showText) {
-            ImGui.text("This is a cool message!");
-            ImGui.sameLine();
-        }
-
-
-    }
-
-
-    private void setupDockspace(){
+    private void setupDockspace() {
         int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
 
-        ImGui.setNextWindowPos(0.0f,0.0f,ImGuiCond.Always);
+        ImGui.setNextWindowPos(0.0f, 0.0f, ImGuiCond.Always);
         ImGui.setNextWindowSize(Window.getWidth(), Window.getHeight());
-        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding,0.0f);
-        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize,0.0f);
-        windowFlags|=ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse
-                | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove|
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+        windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
                 ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
 
-          ImGui.begin("Dockspace Demo", new ImBoolean(true), windowFlags);
-          ImGui.popStyleVar(2);
+        ImGui.begin("Dockspace Demo", new ImBoolean(true), windowFlags);
+        ImGui.popStyleVar(2);
 
-          //DAH BEYE3MEL DOCKSPACE
-          ImGui.dockSpace(ImGui.getID("Dockspace"));
-
-
+        // Dockspace
+        ImGui.dockSpace(ImGui.getID("Dockspace"));
     }
 
     public PropertiesWindow getPropertiesWindow() {
         return this.propertiesWindow;
     }
-
-
-
 }

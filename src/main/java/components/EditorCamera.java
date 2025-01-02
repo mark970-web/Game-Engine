@@ -42,7 +42,7 @@ public class EditorCamera extends Component {
 
         float moveSpeed = dragSensitivity * dt;
         if (KeyListener.isKeyPressed(GLFW_KEY_LEFT_CONTROL) || KeyListener.isKeyPressed(GLFW_KEY_RIGHT_CONTROL)) {
-            moveSpeed *= 7.0f;
+            moveSpeed *= 2.0f;
         }
 
         // Arrow Key Movement
