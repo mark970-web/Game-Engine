@@ -224,7 +224,7 @@ public class RenderBatch implements Comparable<RenderBatch> {
             vertices[offset + 8] = texId;
 
             // Load entity id
-            vertices[offset + 9] = sprite.gameObject.getuid() + 1;
+            vertices[offset + 9] = sprite.gameObject.getUid() + 1;
 
             offset += VERTEX_SIZE;
         }
